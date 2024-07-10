@@ -1,0 +1,8 @@
+Playlist generator:
+This script generates playlist for Apple Muisc app on MAC.
+
+1. It's dependent it on tracks having specified generes
+2. It will generate playlist with 15 tracks
+3. Minimum of 5 songs required to generate playlist
+    4. More then 2 albums required to avoid same album overlapping (Eg: "Starboy", "After Hours", "Starboy")
+5. Add tracks to a playlist if played > 5 times, limited 3-5 tracks

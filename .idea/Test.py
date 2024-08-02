@@ -2,6 +2,7 @@ import ast
 import random
 import subprocess
 
+
 def get_all_genres():
     get_genres = '''
     tell application "Music"
@@ -26,7 +27,10 @@ def add_genre_to_playlist(playlist_name, genre, track_limit):
         set genreTracks to every track of library playlist 1 whose genre contains "{genre}"
         set trackList to ""
         repeat with aTrack in genreTracks
-            set trackList to trackList & "(" & (get database ID of aTrack as string) & ", " & (get duration of aTrack as string) & ", \\"" & (get album of aTrack as string) & "\\", \\"" & (get artist of aTrack as string) & "\\")" & ", "
+            set trackList to trackList & "(" & (get database ID of aTrack as string) & ",
+             " & (get duration of aTrack as string) & ",
+              \\"" & (get album of aTrack as string) & "\\",
+               \\"" & (get artist of aTrack as string) & "\\")" & ", "
         end repeat
         return "[" & text 1 thru -3 of trackList & "]"
     end tell
@@ -37,7 +41,9 @@ def add_genre_to_playlist(playlist_name, genre, track_limit):
         print(f"No tracks found in {genre} genre.")
         return
     track_tuples = ast.literal_eval(result.stdout)
-    tracks = [{'id': int(id), 'duration': float(duration), 'album': album, 'artist': artist} for id, duration, album, artist in track_tuples]
+    tracks = [{'id': int(id), 'duration': float(duration), 'album': album, 'artist': artist} for
+              id, duration, album, artist in track_tuples]
+
 
     # Shuffle tracks here before any checks
     random.shuffle(tracks)
@@ -71,6 +77,12 @@ def add_genre_to_playlist(playlist_name, genre, track_limit):
     '''
     subprocess.run(['osascript', '-e', get_or_create_playlist])
 
+    # Calculate the track limit to fit the 5, 10, 15 pattern
+    # If track_limit is not a multiple of 5, reduce it to the nearest lower multiple of 5
+    smoothened_track_limit = track_limit - (track_limit % 5) if track_limit % 5 != 0 else track_limit
+    # Ensure adjusted_track_limit is at least 5
+    smoothened_track_limit = max(5, smoothened_track_limit)
+
     # Add tracks to the playlist
     added_tracks = 0
     last_added_album = None
@@ -80,12 +92,12 @@ def add_genre_to_playlist(playlist_name, genre, track_limit):
     album_count = len(albums)
 
     for track in tracks:
-        if added_tracks >= track_limit:
+        if added_tracks >= smoothened_track_limit:
             break
 
         current_artist = track['artist']
         # Check if current artist is the same as the last artist
-        if current_artist == last_artist:
+        if current_artist == last_artist and album_count > 2:
             consecutive_count += 1
         else:
             consecutive_count = 1  # Reset count for a new artist
@@ -108,11 +120,13 @@ def add_genre_to_playlist(playlist_name, genre, track_limit):
             added_tracks += 1
             last_added_album = track['album']
 
-genres = get_all_genres()
-genres = [genre.strip() for genre in genres]
-print(genres)
 
-for genre in genres:
-    playlist_name = f"{genre} Mix"
-    track_count = 15
-    add_genre_to_playlist(playlist_name, genre, track_count)
+if __name__ == '__main__':
+    genres = get_all_genres()
+    genres = [genre.strip() for genre in genres]
+    print(genres)
+
+    for genre in genres:
+        playlist_name = f"{genre} Mix"
+        track_count = 20
+        add_genre_to_playlist(playlist_name, genre, track_count)

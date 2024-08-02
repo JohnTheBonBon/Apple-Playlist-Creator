@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 def run_applescript(script):
     """Run an AppleScript command and return the output."""
-    result = subprocess.run(['osascript', '-e', script], capture_output=True, text=True)
+    result = subprocess.run(['osascript', '-e', script], capture_output=True, text=True) # Changed 'subprocess.r
     if result.returncode != 0:
         logging.error(f"AppleScript error: {result.stderr.strip()}")
         return ""
